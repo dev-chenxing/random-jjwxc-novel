@@ -1,8 +1,10 @@
 const maxNovelId = 9000000;
 
-const axios = require("axios");
-const iconv = require("iconv-lite");
-const cheerio = require("cheerio");
+import axios from "axios";
+import iconv from "iconv-lite";
+import cheerio from "cheerio";
+import ora from "ora";
+import chalk from "chalk";
 
 const randomInteger = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
@@ -46,7 +48,20 @@ const getNovelItem = (url) => {
     });
 };
 
+const printNovel = async (novel) => {
+    const title = novel["title"];
+    const author = novel["author"];
+    const wordCount = novel["wordCount"];
+    const status = novel["status"];
+    const genre = novel["genre"];
+    console.log(chalk.bold(title));
+    console.log(author);
+    console.log(`${wordCount}·${status}`);
+    console.log(genre);
+};
+
 const randomNovel = async () => {
+    const spinner = ora().start();
     let randomNovel = {};
     do {
         const randomNovelId = randomInteger(1, maxNovelId);
@@ -57,7 +72,8 @@ const randomNovel = async () => {
             })
             .catch((err) => {});
     } while (!randomNovel["title"] || randomNovel["title"] == "");
-    console.log(randomNovel);
+    spinner.stop();
+    return randomNovel;
 };
 
-randomNovel();
+randomNovel().then((novel) => printNovel(novel));
