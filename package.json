@@ -1,19 +1,19 @@
 {
-    "name": "random-jjwxc-novel",
-    "version": "1.0.0",
-    "main": "index.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "author": "chenxing",
-    "license": "MIT",
-    "description": "",
-    "dependencies": {
-        "axios": "^1.7.2",
-        "chalk": "^5.3.0",
-        "cheerio": "^1.0.0-rc.12",
-        "iconv-lite": "^0.6.3",
-        "ora": "^8.0.1"
-    },
-    "type": "module"
+  "name": "random-jjwxc-novel",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "chenxing",
+  "license": "MIT",
+  "description": "Generate random jjwxc.net novel",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "chalk": "^5.3.0",
+    "cheerio": "^1.0.0-rc.12",
+    "iconv-lite": "^0.6.3",
+    "ora": "^8.0.1"
+  },
+  "type": "module"
 }

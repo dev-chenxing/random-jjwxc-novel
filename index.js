@@ -33,12 +33,10 @@ const getNovelItem = (url) => {
                     reject(novel);
                 } else {
                     novel["author"] = $("span[itemprop='author']").text();
-                    novel["url"] = url;
-                    novel["genre"] = $("span[itemprop='genre']").text().trim();
-                    novel["status"] = $("span[itemprop='updataStatus']").text();
                     novel["wordCount"] = $("span[itemprop='wordCount']").text();
-                    novel["credits"] = $("span[itemprop='collectedCount']")[0].next.next.next.data.trim().split("：").slice(-1)[0];
-
+                    novel["status"] = $("span[itemprop='updataStatus']").text();
+                    novel["genre"] = $("span[itemprop='genre']").text().trim();
+                    
                     resolve(novel);
                 }
             })
