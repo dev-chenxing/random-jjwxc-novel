@@ -52,6 +52,12 @@ const getNovelItem = (url) => {
           novel["tags"] = getTags(
             $("a[style='text-decoration:none;color: red;']")
           );
+          const latestChapter = $("tr[itemprop='chapter newestChapter']");
+          novel["latestChapter"] = `第${latestChapter
+            .children()[0]
+            .text()}章 ${latestChapter.children()[1].text()}`;
+          novel["description"] =
+            $("div[id='novelintro']")[0].text().substring(0, 58) + "...";
           resolve(novel);
         }
       })
@@ -62,13 +68,15 @@ const getNovelItem = (url) => {
   });
 };
 
-const printNovel = async (novel, url) => {
+const printNovel = async (novel) => {
   console.log(chalk.bold(novel["title"]) + ` (${novel["url"]})`);
-  console.log(novel["author"]);
+  console.log(chalk.green(novel["author"]));
   console.log(`${novel["wordCount"]}·${novel["status"]}`);
   console.log(novel["genre"]);
   if (novel["oneliner"]) console.log(novel["oneliner"]);
   if (novel["tags"]) console.log(chalk.green(`🏷️ ${novel["tags"]}`));
+  console.log(chalk.green("最新更新: ") + novel["latestChapter"]);
+  console.log(novel["description"]);
 };
 
 const randomNovel = async () => {
