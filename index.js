@@ -10,6 +10,14 @@ const randomInteger = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
 };
 
+const getTags = (element) => {
+    let tags = [""];
+    for (let i = 0; i < element.length; i++) {
+        tags.push(element[i].children[0].data);
+    }
+    return tags.join(" ");
+};
+
 const getNovelItem = (url) => {
     return new Promise(async (resolve, reject) => {
         let novel = {};
@@ -36,26 +44,25 @@ const getNovelItem = (url) => {
                     novel["wordCount"] = $("span[itemprop='wordCount']").text();
                     novel["status"] = $("span[itemprop='updataStatus']").text();
                     novel["genre"] = $("span[itemprop='genre']").text().trim();
-                    
+                    novel["oneliner"] = $("span[style='color:#F98C4D']").first().text().split("：")[1];
+                    novel["tags"] = getTags($("a[style='text-decoration:none;color: red;']"));
                     resolve(novel);
                 }
             })
             .catch((err) => {
+                // console.log(err);
                 reject(novel);
             });
     });
 };
 
 const printNovel = async (novel) => {
-    const title = novel["title"];
-    const author = novel["author"];
-    const wordCount = novel["wordCount"];
-    const status = novel["status"];
-    const genre = novel["genre"];
-    console.log(chalk.bold(title));
-    console.log(author);
-    console.log(`${wordCount}·${status}`);
-    console.log(genre);
+    console.log(chalk.bold(novel["title"]));
+    console.log(novel["author"]);
+    console.log(`${novel["wordCount"]}·${novel["status"]}`);
+    console.log(novel["genre"]);
+    if (novel["oneliner"]) console.log(novel["oneliner"]);
+    if (novel["tags"]) console.log(chalk.green(`🏷️ ${novel["tags"]}`));
 };
 
 const randomNovel = async () => {
@@ -68,10 +75,16 @@ const randomNovel = async () => {
             .then((novel) => {
                 randomNovel = novel;
             })
-            .catch((err) => {});
-    } while (!randomNovel["title"] || randomNovel["title"] == "");
+            .catch((err) => {
+                // console.log(err);
+            });
+    } while (!randomNovel["title"] || randomNovel["title"] == "" || !randomNovel["tags"]);
     spinner.stop();
     return randomNovel;
 };
 
-randomNovel().then((novel) => printNovel(novel));
+const init = async () => {
+    randomNovel().then((novel) => printNovel(novel));
+    // await getNovelItem("https://www.jjwxc.net/onebook.php?novelid=7535916").then((novel) => printNovel(novel));
+};
+init();
