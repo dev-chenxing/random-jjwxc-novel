@@ -5,6 +5,7 @@ import iconv from "iconv-lite";
 import cheerio from "cheerio";
 import ora from "ora";
 import chalk from "chalk";
+import terminalLink from "terminal-link";
 
 const randomInteger = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
@@ -40,6 +41,7 @@ const getNovelItem = (url) => {
                 if (!title || title == "") {
                     reject(novel);
                 } else {
+                    novel["url"] = url;
                     novel["author"] = $("span[itemprop='author']").text();
                     novel["wordCount"] = $("span[itemprop='wordCount']").text();
                     novel["status"] = $("span[itemprop='updataStatus']").text();
@@ -56,7 +58,7 @@ const getNovelItem = (url) => {
     });
 };
 
-const printNovel = async (novel) => {
+const printNovel = async (novel, url) => {
     console.log(chalk.bold(novel["title"]));
     console.log(novel["author"]);
     console.log(`${novel["wordCount"]}·${novel["status"]}`);
