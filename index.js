@@ -52,12 +52,17 @@ const getNovelItem = (url) => {
           novel["tags"] = getTags(
             $("a[style='text-decoration:none;color: red;']")
           );
-          const latestChapter = $("tr[itemprop='chapter newestChapter']");
-          novel["latestChapter"] = `第${latestChapter
-            .children()[0]
-            .text()}章 ${latestChapter.children()[1].text()}`;
+          const latestChapterNum = $(
+            "tr[itemprop='chapter newestChapter'] td"
+          )[0].children[0].data.trim();
+          const latestChapterTitle = $(
+            "tr[itemprop='chapter newestChapter'] span[itemprop='headline'] a"
+          ).text();
+          novel[
+            "latestChapter"
+          ] = `第${latestChapterNum}章 ${latestChapterTitle}`;
           novel["description"] =
-            $("div[id='novelintro']")[0].text().substring(0, 58) + "...";
+            $("div[id='novelintro']").text().substring(0, 57) + "...";
           resolve(novel);
         }
       })
@@ -69,6 +74,7 @@ const getNovelItem = (url) => {
 };
 
 const printNovel = async (novel) => {
+  console.log();
   console.log(chalk.bold(novel["title"]) + ` (${novel["url"]})`);
   console.log(chalk.green(novel["author"]));
   console.log(`${novel["wordCount"]}·${novel["status"]}`);
@@ -103,6 +109,6 @@ const randomNovel = async () => {
 
 const init = async () => {
   randomNovel().then((novel) => printNovel(novel));
-  // await getNovelItem("https://www.jjwxc.net/onebook.php?novelid=7535916").then((novel) => printNovel(novel));
+  // await getNovelItem("https://www.jjwxc.net/onebook.php?novelid=8891144").then((novel) => printNovel(novel));
 };
 init();
