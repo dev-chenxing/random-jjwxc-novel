@@ -7,6 +7,7 @@ import ora from "ora";
 import chalk from "chalk";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import filter from "./filter";
 
 const spinner = ora();
 
@@ -137,17 +138,10 @@ const getNovelList = (url) => {
     });
 };
 
-const orientationOptions = {
-    言情: 1,
-    纯爱: 2,
-    百合: 3,
-    无cp: 5,
-};
-
 const getQueryUrl = (baseUrl, argv) => {
     let url = baseUrl;
     if (argv.orientation) {
-        const orientationIndex = orientationOptions[argv.orientation.toLowerCase()];
+        const orientationIndex = filter.orientation[argv.orientation.toLowerCase()];
         if (orientationIndex) {
             url += `&xx=${orientationIndex}`;
         } else {
