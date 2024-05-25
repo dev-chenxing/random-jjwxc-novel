@@ -123,24 +123,44 @@ const getNovelList = (url) => {
                 // parse the html string
                 const $ = cheerio.load(htmlString);
 
-                for (let i = 1; i < 50; i++) {
-                    const element = $("div[id='diss'] td")[i].children[1];
+                const elementList = $("div[id='diss'] td");
+                for (let i = 1; i < elementList.length; i++) {
+                    const element = elementList[i].children[1];
                     novelList.push({ title: element.children[0].data, url: element.attribs.href });
                 }
 
                 resolve(novelList);
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 reject(novelList);
             });
     });
 };
 
+const getNovelLists = async () => {
+    const baseUrl = "https://m.jjwxc.net/assort?sortType=1&page=";
+    let novelList = [];
+    for (let i = 1; i <= 10; i++) {
+        const url = baseUrl + i;
+        await getNovelList(url)
+            .then((list) => {
+                novelList = novelList.concat(list);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }
+    return novelList;
+};
+
 const init = async () => {
-    const baseUrl = "https://m.jjwxc.net/assort?sortType=1&page=0";
-    const list = await getNovelList(baseUrl);
-    console.log(list);
+    getNovelLists()
+        .then((novelList) => console.log(novelList))
+        .catch((err) => {
+            console.log(err);
+        });
+
     /* randomNovel()
         .then((novel) => printNovel(novel))
         .catch((err) => {
