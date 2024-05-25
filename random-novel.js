@@ -5,6 +5,8 @@ import iconv from "iconv-lite";
 import cheerio from "cheerio";
 import ora from "ora";
 import chalk from "chalk";
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
 
 const randomInteger = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
@@ -85,6 +87,16 @@ const printNovel = async (novel) => {
   console.log(novel["description"]);
 };
 
+const isValidNovel = (novel) => {
+  return novel["title"] && novel["title"] !== "" && novel["tags"];
+};
+
+const isFiltered = (novel) => {
+  const argv = yargs(hideBin(process.argv)).argv;
+  if (argv.orientation && args.orientation == novel["orientation"]) return true;
+  return false;
+};
+
 const randomNovel = async () => {
   const spinner = ora().start();
   let randomNovel = {};
@@ -98,17 +110,17 @@ const randomNovel = async () => {
       .catch((err) => {
         // console.log(err);
       });
-  } while (
-    !randomNovel["title"] ||
-    randomNovel["title"] == "" ||
-    !randomNovel["tags"]
-  );
+  } while (!isValidNovel(randomNovel) || isFiltered(randomNovel));
   spinner.stop();
   return randomNovel;
 };
 
 const init = async () => {
-  randomNovel().then((novel) => printNovel(novel));
+  randomNovel()
+    .then((novel) => printNovel(novel))
+    .catch((err) => {
+      console.log(err);
+    });
   // await getNovelItem("https://www.jjwxc.net/onebook.php?novelid=8891144").then((novel) => printNovel(novel));
 };
 init();
