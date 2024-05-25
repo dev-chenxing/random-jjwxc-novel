@@ -8,16 +8,18 @@ import chalk from "chalk";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
+const argv = yargs(hideBin(process.argv)).argv;
+
 const randomInteger = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
 };
 
 const getTags = (element) => {
-  let tags = [""];
+  let tags = [];
   for (let i = 0; i < element.length; i++) {
     tags.push(element[i].children[0].data);
   }
-  return tags.join(" ");
+  return tags;
 };
 
 const getNovelItem = (url) => {
@@ -47,6 +49,12 @@ const getNovelItem = (url) => {
           novel["wordCount"] = $("span[itemprop='wordCount']").text();
           novel["status"] = $("span[itemprop='updataStatus']").text();
           novel["genre"] = $("span[itemprop='genre']").text().trim();
+          [
+            novel["originality"],
+            novel["orientation"],
+            novel["era"],
+            novel["category"],
+          ] = novel["genre"].split("-");
           novel["oneliner"] = $("span[style='color:#F98C4D']")
             .first()
             .text()
@@ -82,7 +90,7 @@ const printNovel = async (novel) => {
   console.log(`${novel["wordCount"]}·${novel["status"]}`);
   console.log(novel["genre"]);
   if (novel["oneliner"]) console.log(novel["oneliner"]);
-  if (novel["tags"]) console.log(chalk.green(`🏷️ ${novel["tags"]}`));
+  if (novel["tags"]) console.log(chalk.green(`🏷️  ${novel["tags"].join(" ")}`));
   console.log(chalk.green("最新更新: ") + novel["latestChapter"]);
   console.log(novel["description"]);
 };
@@ -92,8 +100,9 @@ const isValidNovel = (novel) => {
 };
 
 const isFiltered = (novel) => {
-  const argv = yargs(hideBin(process.argv)).argv;
-  if (argv.orientation && args.orientation == novel["orientation"]) return true;
+  if (argv.orientation && argv.orientation !== novel["orientation"])
+    return true;
+  if (argv.tag && !novel["tags"].includes(argv.tag)) return true;
   return false;
 };
 
@@ -121,6 +130,12 @@ const init = async () => {
     .catch((err) => {
       console.log(err);
     });
-  // await getNovelItem("https://www.jjwxc.net/onebook.php?novelid=8891144").then((novel) => printNovel(novel));
+  /* await getNovelItem("https://www.jjwxc.net/onebook.php?novelid=1782640")
+    .then((novel) => {
+      if (!isFiltered(novel)) printNovel(novel);
+    })
+    .catch((err) => {
+      console.log(err);
+    }); */
 };
 init();
