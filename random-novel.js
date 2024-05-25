@@ -8,7 +8,7 @@ import chalk from "chalk";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
-const argv = yargs(hideBin(process.argv)).argv;
+const spinner = ora();
 
 const randomInteger = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
@@ -89,7 +89,6 @@ const isFiltered = (novel) => {
 };
 
 const randomNovel = async () => {
-    const spinner = ora().start();
     let randomNovel = {};
     do {
         const randomNovelId = randomInteger(1, maxNovelId);
@@ -102,7 +101,7 @@ const randomNovel = async () => {
                 // console.log(err);
             });
     } while (!isValidNovel(randomNovel) || isFiltered(randomNovel));
-    spinner.stop();
+
     return randomNovel;
 };
 
@@ -126,7 +125,7 @@ const getNovelList = (url) => {
                 const elementList = $("div[id='diss'] td");
                 for (let i = 1; i < elementList.length; i++) {
                     const element = elementList[i].children[1];
-                    novelList.push({ title: element.children[0].data, url: element.attribs.href });
+                    novelList.push({ title: element.children[0].data, url: "https://m.jjwxc.net" + element.attribs.href });
                 }
 
                 resolve(novelList);
@@ -138,11 +137,34 @@ const getNovelList = (url) => {
     });
 };
 
-const getNovelLists = async () => {
-    const baseUrl = "https://m.jjwxc.net/assort?sortType=1&page=";
+const orientationOptions = {
+    言情: 1,
+    纯爱: 2,
+    百合: 3,
+    无cp: 5,
+};
+
+const getQueryUrl = (baseUrl, argv) => {
+    let url = baseUrl;
+    if (argv.orientation) {
+        const orientationIndex = orientationOptions[argv.orientation.toLowerCase()];
+        if (orientationIndex) {
+            url += `&xx=${orientationIndex}`;
+        } else {
+            spinner.stop();
+            throw new Error(`invalid orientation argument ${argv.orientation}`);
+        }
+    }
+    return url;
+};
+
+const getNovelLists = async (argv) => {
+    spinner.start();
+    const baseUrl = "https://m.jjwxc.net/assort?sortType=1";
+    const queryUrl = getQueryUrl(baseUrl, argv);
     let novelList = [];
     for (let i = 1; i <= 10; i++) {
-        const url = baseUrl + i;
+        const url = `${queryUrl}&page=${i}`;
         await getNovelList(url)
             .then((list) => {
                 novelList = novelList.concat(list);
@@ -151,11 +173,13 @@ const getNovelLists = async () => {
                 console.log(err);
             });
     }
+    spinner.stop();
     return novelList;
 };
 
 const init = async () => {
-    getNovelLists()
+    const argv = yargs(hideBin(process.argv)).argv;
+    getNovelLists(argv)
         .then((novelList) => console.log(novelList))
         .catch((err) => {
             console.log(err);
