@@ -7,7 +7,7 @@ import ora from "ora";
 import chalk from "chalk";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import filter from "./filter";
+import filter from "./filter.js";
 
 const spinner = ora();
 
@@ -141,12 +141,21 @@ const getNovelList = (url) => {
 const getQueryUrl = (baseUrl, argv) => {
     let url = baseUrl;
     if (argv.orientation) {
-        const orientationIndex = filter.orientation[argv.orientation.toLowerCase()];
-        if (orientationIndex) {
-            url += `&xx=${orientationIndex}`;
+        const index = filter.orientation[argv.orientation.toLowerCase()];
+        if (index) {
+            url += `&xx=${index}`;
         } else {
             spinner.stop();
             throw new Error(`invalid orientation argument ${argv.orientation}`);
+        }
+    }
+    if (argv.tag) {
+        const index = filter.tag[argv.tag.toLowerCase()];
+        if (index) {
+            url += `&bq=${index}`;
+        } else {
+            spinner.stop();
+            throw new Error(`invalid tag argument ${argv.tag}`);
         }
     }
     return url;
