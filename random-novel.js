@@ -77,7 +77,7 @@ const getNovelItem = (url) => {
         resolve(novel);
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
         reject(novel);
       });
   });
@@ -95,28 +95,36 @@ const printNovel = async (novel) => {
   console.log(novel["description"]);
 };
 
-const isValidNovel = (novel) => {
-  return novel["title"] && novel["title"] !== "" && novel["tags"];
-};
-
-const isFiltered = (novel) => {
-  if (argv.orientation && argv.orientation !== novel["orientation"])
-    return true;
-  if (argv.tag && !novel["tags"].includes(argv.tag)) return true;
+const isFiltered = (novel, filterCondition) => {
+  if (filterCondition.wordCount) {
+    if (
+      filterCondition.wordCount[">"] &&
+      novel["wordCount"] < filterCondition.wordCount[">"]
+    )
+      return true;
+    if (
+      filterCondition.wordCount["<"] &&
+      novel["wordCount"] > filterCondition.wordCount["<"]
+    )
+      return true;
+  }
   return false;
 };
 
-const randomNovel = async (novelList) => {
-  const randomNovelId = randomChoice(novelList).id;
-  const url = "https://www.jjwxc.net/onebook.php?novelid=" + randomNovelId;
+const randomNovel = async (novelList, filterCondition) => {
   let randomNovel = {};
-  await getNovelItem(url)
-    .then((novel) => {
-      randomNovel = novel;
-    })
-    .catch((err) => {
-      // console.log(err);
-    });
+  do {
+    const randomNovelId = randomChoice(novelList).id;
+    const url = "https://www.jjwxc.net/onebook.php?novelid=" + randomNovelId;
+
+    await getNovelItem(url)
+      .then((novel) => {
+        randomNovel = novel;
+      })
+      .catch((err) => {
+        // console.log(err);
+      });
+  } while (isFiltered(randomNovel, filterCondition));
   return randomNovel;
 };
 
@@ -151,7 +159,7 @@ const getNovelList = (url) => {
         resolve(novelList);
       })
       .catch((err) => {
-        console.error(err);
+        // console.error(err);
         reject(novelList);
       });
   });
@@ -177,13 +185,27 @@ const getQueryUrl = (baseUrl, argv) => {
       throw new Error(`invalid tag argument ${argv.tag}`);
     }
   }
-  return url;
+  let filterCondition = {};
+  if (argv.wordCount) {
+    if (["<", ">"].includes(argv.wordCount[0])) {
+      let numStr = argv.wordCount.substr(1);
+      if (argv.wordCount[1] == "=") numStr = numStr.substr(1);
+      filterCondition["wordCount"] = {};
+      filterCondition["wordCount"][argv.wordCount[0]] = Number(numStr);
+    } else {
+      spinner.stop();
+      throw new Error(`invalid wordCount argument ${argv.wordCount}`);
+    }
+  }
+  const queryUrl = url;
+  return { queryUrl, filterCondition };
 };
 
 const getNovelLists = async (argv) => {
   spinner.start();
   const baseUrl = "https://m.jjwxc.net/assort?sortType=1";
-  const queryUrl = getQueryUrl(baseUrl, argv);
+  const { queryUrl, filterCondition } = getQueryUrl(baseUrl, argv);
+
   let novelList = [];
   for (let i = 1; i <= 10; i++) {
     const url = `${queryUrl}&page=${i}`;
@@ -192,25 +214,25 @@ const getNovelLists = async (argv) => {
         novelList = novelList.concat(list);
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
       });
   }
   spinner.stop();
-  return novelList;
+  return { novelList, filterCondition };
 };
 
 const init = async () => {
   const argv = yargs(hideBin(process.argv)).argv;
   getNovelLists(argv)
-    .then((novelList) => {
-      randomNovel(novelList)
+    .then(({ novelList, filterCondition }) => {
+      randomNovel(novelList, filterCondition)
         .then((novel) => printNovel(novel))
         .catch((err) => {
-          console.log(err);
+          // console.log(err);
         });
     })
     .catch((err) => {
-      console.log(err);
+      // console.log(err);
     });
 };
 init();

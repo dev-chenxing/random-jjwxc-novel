@@ -18,10 +18,10 @@ node random-novel.js
 
 ![random-novel](public/random-novel.png)
 
-隨機一本百合文：
+隨機一本百合仙俠文：
 
 ```bash
-node random-novel.js --orientation 百合
+node random-novel.js --orientation 百合 --tag 仙侠修真
 ```
 
 ![random-gl](public/random-gl.png)
