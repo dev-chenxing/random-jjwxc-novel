@@ -21,8 +21,7 @@ node random-novel.js
 隨機一本百合仙俠文：
 
 ```bash
-node random-novel.js --orientation 百合 --tag 仙侠修真
+node random-novel.js --orientation 百合 --tag 仙侠修真 --wordCount '>10000'
 ```
 
 ![random-gl](public/random-gl.png)
-

@@ -97,16 +97,20 @@ const printNovel = async (novel) => {
 
 const isFiltered = (novel, filterCondition) => {
   if (filterCondition.wordCount) {
+    const wordCount = Number(novel["wordCount"].slice(0, -1));
     if (
       filterCondition.wordCount[">"] &&
-      novel["wordCount"] < filterCondition.wordCount[">"]
+      wordCount < filterCondition.wordCount[">"]
     )
       return true;
     if (
       filterCondition.wordCount["<"] &&
-      novel["wordCount"] > filterCondition.wordCount["<"]
+      wordCount > filterCondition.wordCount["<"]
     )
       return true;
+    console.log(
+      `filter: ${filterCondition.wordCount.toString()}, novel: ${wordCount}`
+    );
   }
   return false;
 };
