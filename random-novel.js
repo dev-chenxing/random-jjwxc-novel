@@ -108,9 +108,6 @@ const isFiltered = (novel, filterCondition) => {
       wordCount > filterCondition.wordCount["<"]
     )
       return true;
-    console.log(
-      `filter: ${filterCondition.wordCount.toString()}, novel: ${wordCount}`
-    );
   }
   return false;
 };
