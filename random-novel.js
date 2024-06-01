@@ -1,5 +1,3 @@
-const maxNovelId = 9000000;
-
 import axios from "axios";
 import iconv from "iconv-lite";
 import cheerio from "cheerio";
@@ -8,6 +6,10 @@ import chalk from "chalk";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import filter from "./filter.js";
+import fs from "fs";
+
+const progressFile = fs.readFileSync("progress.json");
+const progress = JSON.parse(progressFile);
 
 const spinner = ora();
 
@@ -83,9 +85,20 @@ const getNovelItem = (url) => {
   });
 };
 
+const getReadProgress = (novel) => {
+  const progressChapter = progress[novel["id"]];
+  if (progressChapter)
+    return `[看到${progressChapter.toString().padStart(3, "0")}章]`;
+  else return "";
+};
+
 const printNovel = async (novel) => {
   console.log();
-  console.log(chalk.bold(novel["title"]) + ` (${novel["url"]})`);
+  console.log(
+    chalk.red(getReadProgress(novel)) +
+      chalk.bold(novel["title"]) +
+      ` (${novel["url"]})`
+  );
   console.log(chalk.green(novel["author"]));
   console.log(`${novel["wordCount"]}·${novel["status"]}`);
   console.log(novel["genre"]);
@@ -121,6 +134,7 @@ const randomNovel = async (novelList, filterCondition) => {
     await getNovelItem(url)
       .then((novel) => {
         randomNovel = novel;
+        randomNovel["id"] = randomNovelId;
       })
       .catch((err) => {
         // console.log(err);
@@ -229,11 +243,11 @@ const init = async () => {
       randomNovel(novelList, filterCondition)
         .then((novel) => printNovel(novel))
         .catch((err) => {
-          // console.log(err);
+          console.log(err);
         });
     })
     .catch((err) => {
-      // console.log(err);
+      console.log(err);
     });
 };
 init();
