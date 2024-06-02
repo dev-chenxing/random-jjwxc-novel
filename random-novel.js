@@ -93,6 +93,7 @@ const getReadProgress = (novel) => {
 };
 
 const printNovel = async (novel) => {
+  spinner.stop();
   console.log();
   console.log(
     chalk.red(getReadProgress(novel)) +
@@ -120,6 +121,10 @@ const isFiltered = (novel, filterCondition) => {
       filterCondition.wordCount["<"] &&
       wordCount > filterCondition.wordCount["<"]
     )
+      return true;
+  }
+  if (filterCondition.description) {
+    if (!novel["description"].includes(filterCondition.description))
       return true;
   }
   return false;
@@ -212,6 +217,9 @@ const getQueryUrl = (baseUrl, argv) => {
       throw new Error(`invalid wordCount argument ${argv.wordCount}`);
     }
   }
+  if (argv.description) {
+    filterCondition["description"] = argv.description;
+  }
   const queryUrl = url;
   return { queryUrl, filterCondition };
 };
@@ -232,7 +240,6 @@ const getNovelLists = async (argv) => {
         // console.log(err);
       });
   }
-  spinner.stop();
   return { novelList, filterCondition };
 };
 
@@ -243,11 +250,11 @@ const init = async () => {
       randomNovel(novelList, filterCondition)
         .then((novel) => printNovel(novel))
         .catch((err) => {
-          console.log(err);
+          // console.log(err);
         });
     })
     .catch((err) => {
-      console.log(err);
+      // console.log(err);
     });
 };
 init();
